@@ -1,6 +1,6 @@
 import sys
 from typing import Optional, Union
-from pydantic import validator, root_validator
+from pydantic import validator, model_validator
 
 from pogema.utils import CommonSettings
 
@@ -31,26 +31,26 @@ class GridConfig(CommonSettings, ):
     max_episode_steps: int = 64
     auto_reset: Optional[bool] = None
 
-    @root_validator
+    @model_validator
     def validate_dimensions_and_positions(cls, values):
         width_provided = values.get('width') is not None
         height_provided = values.get('height') is not None
-        
+
         if width_provided and not height_provided:
             raise ValueError("Invalid dimension configuration. Please provide height.")
         elif not width_provided and height_provided:
             raise ValueError("Invalid dimension configuration. Please provide width.")
-        
+
         if not width_provided and not height_provided:
             values['width'] = values.get('size', 8)
             values['height'] = values.get('size', 8)
         if 'size' not in values or values.get('size') != max(values.get('width'), values.get('height')):
             values['size'] = max(values.get('width'), values.get('height'))
-        
+
 
         width = values.get('width')
         height = values.get('height')
-        
+
         if width is not None and height is not None:
             agents_xy = values.get('agents_xy')
             if agents_xy is not None:
@@ -64,7 +64,7 @@ class GridConfig(CommonSettings, ):
                         cls.check_positions(agent_goals, width, height)
                 else:
                     cls.check_positions(targets_xy, width, height)
-        
+
         return values
 
     @validator('seed')
@@ -115,11 +115,11 @@ class GridConfig(CommonSettings, ):
         if v is not None:
             if not v or not isinstance(v, (list, tuple)):
                 raise ValueError("targets_xy must be a list")
-            
+
             first_element = v[0]
             if not isinstance(first_element, (list, tuple)):
                 raise ValueError("Invalid targets_xy format")
-            
+
             if isinstance(first_element[0], (list, tuple)):
                 for agent_goals in v:
                     if not isinstance(agent_goals, (list, tuple)) or len(agent_goals) < 2:
@@ -188,14 +188,14 @@ class GridConfig(CommonSettings, ):
                     'targets_xy') is None) and possible_agents_xy and possible_targets_xy:
                 values['possible_agents_xy'] = possible_agents_xy
                 values['possible_targets_xy'] = possible_targets_xy
-        
+
         height = len(v)
         width = 0
         area = 0
         for line in v:
             width = max(width, len(line))
             area += len(line)
-        
+
         values['size'] = max(width, height)
         values['width'] = width
         values['height'] = height
@@ -266,7 +266,7 @@ class GridConfig(CommonSettings, ):
 
     def update_config(self, **kwargs):
         current_values = self.dict()
-        
+
         if 'size' in kwargs:
             current_values.pop('width', None)
             current_values.pop('height', None)
@@ -274,6 +274,6 @@ class GridConfig(CommonSettings, ):
             current_values.pop('size', None)
         current_values.update(kwargs)
         new_instance = GridConfig(**current_values)
-        
+
         for field_name, field_value in new_instance.__dict__.items():
             setattr(self, field_name, field_value)
