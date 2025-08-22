@@ -31,7 +31,7 @@ class GridConfig(CommonSettings, ):
     max_episode_steps: int = 64
     auto_reset: Optional[bool] = None
 
-    @model_validator
+    @model_validator(mode="before")
     def validate_dimensions_and_positions(cls, values):
         width_provided = values.get('width') is not None
         height_provided = values.get('height') is not None
