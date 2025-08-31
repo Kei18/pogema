@@ -152,7 +152,7 @@ class GridConfig(CommonSettings, ):
                 raise IndexError(f"Position is out of bounds! {position} is not in [{0}, {height}] x [{0}, {width}]")
 
 
-    @field_validator('num_agents', always=True)
+    @field_validator('num_agents')
     def num_agents_must_be_positive(cls, v, values):
         if v is None:
             if values['agents_xy']:
@@ -167,7 +167,7 @@ class GridConfig(CommonSettings, ):
         assert 1 <= v <= 128, "obs_radius must be in [1, 128]"
         return v
 
-    @field_validator('map', always=True)
+    @field_validator('map')
     def map_validation(cls, v, values):
         if v is None:
             return None
