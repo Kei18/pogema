@@ -130,7 +130,7 @@ class GridConfig(CommonSettings, ):
                         if not all(isinstance(coord, int) for coord in position):
                             raise ValueError("Position coordinates must be integers")
             else:
-                on_target = values.get('on_target', 'finish')
+                on_target = values.data.get('on_target', 'finish')
                 if on_target == 'restart':
                     raise ValueError("on_target='restart' requires goal sequences, not single goals. Use format: targets_xy: [[[x1,y1],[x2,y2]], [[x3,y3],[x4,y4]]]")
                 for position in v:
@@ -172,22 +172,23 @@ class GridConfig(CommonSettings, ):
         if v is None:
             return None
         if isinstance(v, str):
-            v, agents_xy, targets_xy, possible_agents_xy, possible_targets_xy = GridConfig.str_map_to_list(v, values['FREE'],
-                                                                                                    values['OBSTACLE'])
-            if agents_xy and targets_xy and values.get('agents_xy') is not None and values.get(
+            v, agents_xy, targets_xy, possible_agents_xy, possible_targets_xy = GridConfig.str_map_to_list(
+                v, values.data['FREE'], values.data['OBSTACLE']
+            )
+            if agents_xy and targets_xy and values.data.get('agents_xy') is not None and values.data.get(
                     'targets_xy') is not None:
                 raise KeyError("""Can't create task. Please provide agents_xy and targets_xy only once.
                 Either with parameters or with a map.""")
             if (agents_xy or targets_xy) and (possible_agents_xy or possible_targets_xy):
                 raise KeyError("""Can't create task. Mark either possible locations or precise ones.""")
             elif agents_xy and targets_xy:
-                values['agents_xy'] = agents_xy
-                values['targets_xy'] = targets_xy
-                values['num_agents'] = len(agents_xy)
-            elif (values.get('agents_xy') is None or values.get(
+                values.data['agents_xy'] = agents_xy
+                values.data['targets_xy'] = targets_xy
+                values.data['num_agents'] = len(agents_xy)
+            elif (values.data.get('agents_xy') is None or values.data.get(
                     'targets_xy') is None) and possible_agents_xy and possible_targets_xy:
-                values['possible_agents_xy'] = possible_agents_xy
-                values['possible_targets_xy'] = possible_targets_xy
+                values.data['possible_agents_xy'] = possible_agents_xy
+                values.data['possible_targets_xy'] = possible_targets_xy
 
         height = len(v)
         width = 0
@@ -196,12 +197,13 @@ class GridConfig(CommonSettings, ):
             width = max(width, len(line))
             area += len(line)
 
-        values['size'] = max(width, height)
-        values['width'] = width
-        values['height'] = height
-        values['density'] = sum([sum(line) for line in v]) / area
+        values.data['size'] = max(width, height)
+        values.data['width'] = width
+        values.data['height'] = height
+        values.data['density'] = sum([sum(line) for line in v]) / area
 
         return v
+
 
     @field_validator('possible_agents_xy')
     def possible_agents_xy_validation(cls, v):
