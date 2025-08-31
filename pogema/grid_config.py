@@ -172,7 +172,7 @@ class GridConfig(CommonSettings, ):
         if v is None:
             return None
         if isinstance(v, str):
-            v, agents_xy, targets_xy, possible_agents_xy, possible_targets_xy = cls.str_map_to_list(v, values['FREE'],
+            v, agents_xy, targets_xy, possible_agents_xy, possible_targets_xy = GridConfig.str_map_to_list(v, values['FREE'],
                                                                                                     values['OBSTACLE'])
             if agents_xy and targets_xy and values.get('agents_xy') is not None and values.get(
                     'targets_xy') is not None:
